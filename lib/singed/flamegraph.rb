@@ -23,7 +23,7 @@ module Singed
     end
 
     def start
-      return unless Signed.enabled?
+      return unless Singed.enabled?
       return if filename.exist? # file existing means its been captured already
 
       StackProf.start(mode: :wall, raw: true, ignore_gc: @ignore_gc, interval: @interval)
