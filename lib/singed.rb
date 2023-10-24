@@ -8,7 +8,11 @@ module Singed
   extend self
 
   def start(label = nil, open: true, ignore_gc: false, interval: 1000, io: $stdout)
-    @flamegraph_io = io
+    @flamegraph_options = {
+      open: open,
+      io: io
+    }
+
     @flamegraph = Singed::Flamegraph.new(label: label, ignore_gc: ignore_gc, interval: interval)
     @flamegraph.start
   end
@@ -17,9 +21,9 @@ module Singed
     @flamegraph.stop
     @flamegraph.save
 
-    io = @flamegraph_io
+    io = @flamegraph_options.fetch(:io)
 
-    if Kernel.open
+    if @flamegraph_options.fetch(:open)
       # use npx, so we don't have to add it as a dependency
       io.puts "🔥📈 #{'Captured flamegraph, opening with'.colorize(:bold).colorize(:red)}: #{@flamegraph.open_command}"
       @flamegraph.open
