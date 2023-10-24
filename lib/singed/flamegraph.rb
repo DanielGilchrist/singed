@@ -22,6 +22,20 @@ module Singed
       end
     end
 
+    def start
+      return unless Signed.enabled?
+      return if filename.exist? # file existing means its been captured already
+
+      StackProf.start(mode: :wall, raw: true, ignore_gc: @ignore_gc, interval: @interval)
+    end
+
+    def stop
+      return unless StackProf.running?
+
+      StackProf.stop
+      @profile = StackProf.results
+    end
+
     def record
       return yield unless Singed.enabled?
       return yield if filename.exist? # file existing means its been captured already

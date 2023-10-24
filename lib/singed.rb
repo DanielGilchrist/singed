@@ -7,6 +7,27 @@ require 'colorize'
 module Singed
   extend self
 
+  def start(label = nil, open: true, ignore_gc: false, interval: 1000, io: $stdout)
+    @flamegraph_io = io
+    @flamegraph = Singed::Flamegraph.new(label: label, ignore_gc: ignore_gc, interval: interval)
+    @flamegraph.start
+  end
+
+  def stop
+    @flamegraph.stop
+    @flamegraph.save
+
+    io = @flamegraph_io
+
+    if Kernel.open
+      # use npx, so we don't have to add it as a dependency
+      io.puts "🔥📈 #{'Captured flamegraph, opening with'.colorize(:bold).colorize(:red)}: #{@flamegraph.open_command}"
+      @flamegraph.open
+    else
+      io.puts "🔥📈 #{'Captured flamegraph to file'.colorize(:bold).colorize(:red)}: #{@flamegraph.filename}"
+    end
+  end
+
   # Where should flamegraphs be saved?
   def output_directory=(directory)
     @output_directory = Pathname.new(directory)
